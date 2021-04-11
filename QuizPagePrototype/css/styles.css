@@ -2118,7 +2118,7 @@ textarea.form-control {
 
 .form-check-input[disabled]~.form-check-label,
 .form-check-input:disabled~.form-check-label {
-    color: #6c757d;
+    color: #070707;
 }
 
 .form-check-label {
@@ -2431,7 +2431,7 @@ textarea.form-control.is-invalid {
 .btn {
     display: inline-block;
     font-weight: 400;
-    color: #212529;
+    color:plum;
     text-align: center;
     vertical-align: middle;
     -webkit-user-select: none;
@@ -10052,6 +10052,7 @@ a.text-dark:focus {
     }
     .container {
         min-width: 992px !important;
+        
     }
     .navbar {
         display: none;
@@ -10094,13 +10095,20 @@ p {
 }
 
 .page-section {
+    margin-left: 315px;
+    width: 50%;
     padding: 2rem 0;
+    border: 15px solid purple;
+    border-radius: 25px;
+        
+    
 }
 
 .page-section h2.section-heading {
     font-size: 2.5rem;
     margin-top: 0;
     margin-bottom: 1rem;
+    
 }
 
 .page-section h3.section-subheading {
