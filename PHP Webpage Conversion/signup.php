@@ -3,8 +3,8 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="Signup Page" />
-        <meta name="author" content="Team Rocket" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
         <title>Apollo Melodies</title>
         <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
         <!-- Font Awesome icons (free version)-->
@@ -15,6 +15,15 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BVMDDB5FX1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BVMDDB5FX1');
+</script>
 		<script type="text/javascript">
 			function redir(){
 				window.location = "https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/login.php";
@@ -60,10 +69,46 @@
 				}
 			}
 			function passwordValidator(fieldName,fieldlabel){
-				if (document.getElementById(fieldName).value.length < 9){
+				var hasUpper = 0;
+				var hasLower = 0;
+				var hasNumber = 0;
+				var hasPlus = 0;
+				var hasSpace = 0;
+				var i = 0;
+				var testString = document.getElementById(fieldName).value;
+				for (i = 0; i < document.getElementById(fieldName).value.length; i++){
+					if (testString.charCodeAt(i) == 43){
+						hasPlus = hasPlus + 1;
+					}
+					else if (testString.charCodeAt(i) == 32){
+						hasSpace = hasSpace + 1;
+					}
+					else if (testString.charCodeAt(i) > 64 && testString.charCodeAt(i) < 91){
+						hasUpper = hasUpper +1;
+					}
+					else if (testString.charCodeAt(i) > 96 && testString.charCodeAt(i) < 123){
+						hasLower = hasLower +1;
+					}
+					else if (testString.charCodeAt(i) > 47 && testString.charCodeAt(i) < 58){
+						hasNumber = hasNumber +1;
+					}
+				}
+				if (document.getElementById(fieldName).value.length < 9 || document.getElementById(fieldName).value.length > 50){
 					document.getElementById(fieldName).style.background= "red";
 					document.getElementById(fieldName).value = "";
 					document.getElementById(fieldlabel).innerHTML = "Password: <span style='color:red;font-weight:bold;'> Password length must be 9 to 50 characters.</span>";
+					formActivator();
+				}
+				else if (hasPlus > 0 || hasSpace > 0){
+					document.getElementById(fieldName).style.background= "red";
+					document.getElementById(fieldName).value = "";
+					document.getElementById(fieldlabel).innerHTML = "Password: <span style='color:red;font-weight:bold;'> Password cannot contain a '+' sign or a space.</span>";
+					formActivator();
+				}
+				else if (hasUpper == 0 || hasLower == 0 || hasNumber == 0){
+					document.getElementById(fieldName).style.background= "red";
+					document.getElementById(fieldName).value = "";
+					document.getElementById(fieldlabel).innerHTML = "Password: <span style='color:red;font-weight:bold;'> Password must have uppercase, lowercase and numbers.</span>";
 					formActivator();
 				}
 				else {
@@ -105,7 +150,7 @@
 				if (document.getElementById('email').value.length < 9){
 					counterUp = counterUp + 1;
 				}
-				if (document.getElementById('password').value.length == 0){
+				if (document.getElementById('password').value.length < 9 || document.getElementById('password').value.length > 50){
 					counterUp = counterUp + 1;
 				}
 				if (document.getElementById('confirmpassword').value.length == 0){
@@ -121,10 +166,17 @@
 					document.getElementById('signup').disabled = false;
 				}
 			}
+			function runAll(){
+				usernameValidator('username','usernamelabel');
+				nameValidator('firstname','firstnamelabel');
+				nameValidator('lastname','lastnamelabel');
+				emailValidator('email','emaillabel');
+				passwordValidator('password','passwordlabel');
+				confirmPasswordValidator('confirmpassword','password','confirmpasswordlabel');
+			}
 		</script>
     </head>
     <body id="page-top">
-        <!-- Navigation-->
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
             <div class="container">
                 <a class="navbar-brand js-scroll-trigger" href="https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/"><img src="assets/img/AMicon.png" alt="" style="width: 408px;height: 98px;"/></a>
@@ -135,7 +187,7 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ml-auto">
                         <li class="nav-item"><a href="https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/">Home</a></li>
-                        <li class="nav-item"><a href="https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/signin.php">Sign In</a></li>
+                        <li class="nav-item"><a href="https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/login.php">Sign In</a></li>
                         <li class="nav-item"><a href="https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/signup.php">Sign Up</a></li>
                     </ul>
                 </div>
@@ -185,7 +237,7 @@
 								</div>
 								<div>
 									<br>
-									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="signup" value="Sign up" onmouseover="formActivator();" name="signup" disabled></input>
+									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="signup" value="Sign up" onmouseover="runAll();" onclick="runAll();"; name="signup"></input>
 								</div>
 							</form>
 						</div>

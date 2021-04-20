@@ -24,100 +24,104 @@
 
   gtag('config', 'G-BVMDDB5FX1');
 </script>
-	<script type="text/javascript">
-		function validatefield(fieldname,fieldlabel){
-			if(document.getElementById(fieldname).value.length == 0){
-					document.getElementById(fieldname).style.background= "red";
-					document.getElementById(fieldname).value = "";
-					document.getElementById(fieldlabel).innerHTML = fieldname + ": <span style='color:red;font-weight:bold;'>Cannot be blank.</span>"; 
-					formActivator();
-					
-					
+		<script type="text/javascript">
+			function redir(){
+				window.location = "login.php";
 			}
-			else {
-					document.getElementById(fieldlabel).innerHTML = fieldname + ":"; 
-					document.getElementById(fieldname).style.background= "white";
-					formActivator();
+			function redir2(){
+				window.location = "quizhome.php";
 			}
-		}
-		function formActivator() {
-			var counterUp = 0;
-				if (document.getElementById('username').value.length == 0){
-					counterUp = counterUp + 1;
-				}
-				if (document.getElementById('password').value.length == 0){
-					counterUp = counterUp + 1;
-				}
-				if (counterUp > 0){
-					document.getElementById('login').disabled = true;
-				}
-				else {
-					document.getElementById('login').disabled = false;
-				}
-		}
-		function runAll(){
-			validatefield('username','usernamelabel');
-			validatefield('password','passwordlabel');
-			formActivator();
-		}
-	</script>
+			function redir3(){
+				window.location = "editquiz.php";
+			}
+			function redir4(){
+				window.location = "myquizzes.php";
+			}				
+		</script>
     </head>
-    <body id="page-top">
+	<?
+		session_name('Usersession');
+		session_start();
+		if (!isset($_SESSION["MEMBER_NUMBER"])) {
+			session_destroy ( );
+			echo "<body id='page-top' onload='redir();'>";
+		}
+		elseif (!isset($_SESSION["QUIZ_NUMBER"])) {
+			echo "<body id='page-top' onload='redir4();'>";
+		}
+		elseif (!isset($_SESSION["QUESTION_NUMBER"])) {
+			echo "<body id='page-top' onload='redir3();'>";
+		}
+		elseif (!$_SERVER["REQUEST_METHOD"] == "POST") {
+			echo "<body id='page-top' onload='redir2();'>";
+		}
+		else {
+			$membernumber = $_SESSION["MEMBER_NUMBER"];
+			$username = $_SESSION["MEMBER_ID"];
+			$firstname = $_SESSION["FIRST_NAME"];
+			$lastname = $_SESSION["LAST_NAME"];
+			$email = $_SESSION["EMAIL_ADDRESS"];
+			$quiznumber = $_SESSION["QUIZ_NUMBER"];
+			$questionnumber = $_SESSION["QUESTION_NUMBER"];
+			
+			$teamURL = dirname($_SERVER['PHP_SELF']) . DIRECTORY_SEPARATOR;
+			$server_root = dirname($_SERVER['PHP_SELF']);
+			$dbhost = 'localhost';  // Most likely will not need to be changed
+			$dbname = 'cen4010_s21_g02';   // Needs to be changed to your designated table database name
+			$dbuser = 'cen4010_s21_g02';   // Needs to be changed to reflect your LAMP server credentials
+			$dbpass = 'Group02sec!'; // Needs to be changed to reflect your LAMP server credentials
+			$db = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+			if($db->connect_errno > 0) {
+				die('Unable to connect to database [' . $db->connect_error . ']');
+			}
+			$question = mysqli_real_escape_string($db, $_POST["question"]);
+			$questionsource = mysqli_real_escape_string($db,  $_POST["source"]);
+			$soundlink =  mysqli_real_escape_string($db, $_POST["soundlink"]);
+			$answer1 =  mysqli_real_escape_string($db, $_POST["answer1"]);
+			$answer2 =  mysqli_real_escape_string($db, $_POST["answer2"]);
+			$answer3 =  mysqli_real_escape_string($db, $_POST["answer3"]);
+			$answer4 =  mysqli_real_escape_string($db, $_POST["answer4"]);
+			$correctans =  mysqli_real_escape_string($db, $_POST["correctans"]);
+			$hint =  mysqli_real_escape_string($db, $_POST["hint"]);			
+			
+			$sqlcode = "call DEV_QUIZ_EDIT_QUESTION('$membernumber','$quiznumber','$questionnumber','$question','$questionsource','$soundlink','$answer1','$answer2','$answer3','$answer4','$correctans','$hint','1');";
+			$result = $db->query($sqlcode);
+			$db->close();			
+			echo "<body id='page-top' onload='redir3();'>";			
+		}		
+	?>
         <!-- Navigation-->
-        <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
+        <!--<nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
             <div class="container">
                 <a class="navbar-brand js-scroll-trigger" href="https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/"><img src="assets/img/AMicon.png" alt="" style="width: 408px;height: 98px;"/></a>
                 <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-                    <!--Menu-->
+
                     <i class="fas fa-bars ml-1"></i>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ml-auto">
-                        <li class="nav-item"><a href="https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/">Home</a></li>
-                        <li class="nav-item"><a href="login.php">Sign in</a></li>
-                        <li class="nav-item"><a href="signup.php">Sign up</a></li>
+                        <li class="nav-item"><a href="home.php">Home</a></li>
+						<li class="nav-item"><a href="quizhome.php">Quiz Home</a></li>
+                        <li class="nav-item"><a href="">Messages</a></li>
+                        <li class="nav-item"><a href="">Friends</a></li>
+						<li class="nav-item"><a href="profileedit.php">Edit Profile</a></li>
+                        <li class="nav-item"><a href="logout.php">LogOut</a></li>
                     </ul>
                 </div>
             </div>
-        </nav>
+        </nav>-->
         <!-- Masthead-->
-        <header class="masthead">
-            <div class="container">
-                <div class="masthead-subheading">Welcome To Apollo Melodies!</div>
-                <div class="masthead-heading text-uppercase">Please log in below.</div>
+        <!--<header class="masthead">
+            <div class="container">  
             </div>
-        </header>
+        </header>-->
         <!-- Services-->
-        <section class="page-section" id="services">
+        <!--<section class="page-section" id="services">
             <div class="container">
                 <div class="text-center">
-                    <h2 class="section-heading text-uppercase">Log In</h2>
                 </div>
-				<div class="text-center" align="center">
-					<center>
-						<div style="max-width:500px;">
-							<form action="logval.php" class="section-heading text-uppercase" style="font-weight:bold;" method="post">
-								<div style="text-align:left;">
-									<label for="username" id="usernamelabel">Username:</label><br>
-									<input type="text" id="username" name="username" size="80" style="width: 100%;" onblur="validatefield('username','usernamelabel');"></input>
-								</div>
-								<div style="text-align:left;">
-									<label for="password"  id="passwordlabel">Password:</label><br>
-									<input type="password" id="password" name="password" size="120" style="width: 100%;" onblur="validatefield('password','passwordlabel');"></input>
-								</div>
-								<div style="color:red;">
-									The username or password you entered does not match our records. Please try again.
-								</div>
-								<div>
-									<br>
-									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="login" onmouseover="runAll();" onclick="runAll();" value="Log In" name="login"></input>
-								</div>
-							</form>
-						</div>
-					</center>
-				</div>				
             </div>
-        </section>
+        </section>->>
         <!-- Portfolio Grid-->
         <!--<section class="page-section bg-light" id="portfolio">
             <div class="container">

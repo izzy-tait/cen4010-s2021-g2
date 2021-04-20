@@ -24,45 +24,106 @@
 
   gtag('config', 'G-BVMDDB5FX1');
 </script>
-	<script type="text/javascript">
-		function validatefield(fieldname,fieldlabel){
-			if(document.getElementById(fieldname).value.length == 0){
-					document.getElementById(fieldname).style.background= "red";
-					document.getElementById(fieldname).value = "";
-					document.getElementById(fieldlabel).innerHTML = fieldname + ": <span style='color:red;font-weight:bold;'>Cannot be blank.</span>"; 
-					formActivator();
-					
-					
+		<script>
+			function redir(){
+				window.location = "https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/login.php";
 			}
-			else {
-					document.getElementById(fieldlabel).innerHTML = fieldname + ":"; 
-					document.getElementById(fieldname).style.background= "white";
+			function fieldValidator(fieldName,fieldlabel,backText){
+				if (document.getElementById(fieldName).value.length == 0){
+					document.getElementById(fieldName).style.background= "red";
+					document.getElementById(fieldName).value = "";
+					document.getElementById(fieldlabel).innerHTML = backText + " <span style='color:red;font-weight:bold;'> Must not be blank.</span>"; 
 					formActivator();
-			}
-		}
-		function formActivator() {
-			var counterUp = 0;
-				if (document.getElementById('username').value.length == 0){
-					counterUp = counterUp + 1;
-				}
-				if (document.getElementById('password').value.length == 0){
-					counterUp = counterUp + 1;
-				}
-				if (counterUp > 0){
-					document.getElementById('login').disabled = true;
 				}
 				else {
-					document.getElementById('login').disabled = false;
+					document.getElementById(fieldName).style.background= "white";
+					document.getElementById(fieldlabel).innerHTML = backText;
+					formActivator();
 				}
-		}
-		function runAll(){
-			validatefield('username','usernamelabel');
-			validatefield('password','passwordlabel');
-			formActivator();
-		}
-	</script>
+			}
+			function numberFieldValidator(fieldName,fieldlabel,backText){
+				if (document.getElementById(fieldName).value < 1 || document.getElementById(fieldName).value > 100){
+					document.getElementById(fieldName).style.background= "red";
+					document.getElementById(fieldName).value = "";
+					document.getElementById(fieldlabel).innerHTML = "Pass Percentage <span style='color:red;font-weight:bold;'> (Whole number between 1 and 100):</span>"; 
+					formActivator();
+				}
+				else {
+					document.getElementById(fieldName).style.background= "white";
+					document.getElementById(fieldlabel).innerHTML = backText;
+					formActivator();
+				}
+			}
+			function formActivator(){
+				var assesor = 0;
+				if(document.getElementById('quizname').value.length == 0){
+					assesor = assesor + 1;
+				}
+				if(document.getElementById('quizgenre').value.length == 0){
+					assesor = assesor + 1;
+				}
+				if(document.getElementById('passpercentage').value < 1 || document.getElementById('passpercentage').value > 100){
+					assesor = assesor + 1;
+				}
+				if (assesor == 0){
+					document.getElementById('updatequiz').disabled = false;
+				}
+				else {
+					document.getElementById('updatequiz').disabled = true;
+				}
+			}
+			function rowHighLight(rowId){
+				document.getElementById(rowId).style.background = '#d3c6dc';
+				document.getElementById("currentquestion").value = rowId;
+			}
+			function rowUnHighLight(rowId){
+				document.getElementById(rowId).style.background = '#ffffff';
+			}			
+		</script>
     </head>
-    <body id="page-top">
+	<?
+		session_name('Usersession');
+		session_start();
+		if (!isset($_SESSION["MEMBER_NUMBER"])) {
+			session_destroy ( );
+			echo "<body id='page-top' onload='redir();'>";
+		}
+		else {
+			$membernumber = $_SESSION["MEMBER_NUMBER"];
+			$username = $_SESSION["MEMBER_ID"];
+			$firstname = $_SESSION["FIRST_NAME"];
+			$lastname = $_SESSION["LAST_NAME"];
+			$email = $_SESSION["EMAIL_ADDRESS"];
+			$quiznumber = $_SESSION["QUIZ_NUMBER"];
+			
+			
+			$teamURL = dirname($_SERVER['PHP_SELF']) . DIRECTORY_SEPARATOR;
+			$server_root = dirname($_SERVER['PHP_SELF']);
+			$dbhost = 'localhost';  // Most likely will not need to be changed
+			$dbname = 'cen4010_s21_g02';   // Needs to be changed to your designated table database name
+			$dbuser = 'cen4010_s21_g02';   // Needs to be changed to reflect your LAMP server credentials
+			$dbpass = 'Group02sec!'; // Needs to be changed to reflect your LAMP server credentials
+			$db = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+			if($db->connect_errno > 0) {
+				die('Unable to connect to database [' . $db->connect_error . ']');
+			}
+			$sqlcode = "SELECT * FROM DEV_QUIZ_HEADER WHERE QUIZ_NUMBER = '$quiznumber';";
+			$result = $db->query($sqlcode);
+			$row = $result->fetch_assoc();
+			$db->close();
+			$percent = floatval(floatval($row["PASS_PERCENTAGE"])*floatval(100));
+			
+			$db2 = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+			if($db2->connect_errno > 0) {
+				die('Unable to connect to database [' . $db2->connect_error . ']');
+			}
+			$sqlcode2 = "SELECT * FROM DEV_QUIZ_QUESTION WHERE QUIZ_NUMBER = '$quiznumber';";
+			$result2 = $db2->query($sqlcode2);
+			$db2->close();
+			echo "<body id='page-top'>";
+		}
+		
+	?>
         <!-- Navigation-->
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
             <div class="container">
@@ -73,49 +134,117 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ml-auto">
-                        <li class="nav-item"><a href="https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/">Home</a></li>
-                        <li class="nav-item"><a href="login.php">Sign in</a></li>
-                        <li class="nav-item"><a href="signup.php">Sign up</a></li>
+                        <li class="nav-item"><a href="home.php">Home</a></li>
+						<li class="nav-item"><a href="quizhome.php">Quiz Home</a></li>
+                        <!--<li class="nav-item"><a href="">Messages</a></li>
+                        <li class="nav-item"><a href="">Friends</a></li>-->
+						<li class="nav-item"><a href="profileedit.php">Edit Profile</a></li>
+                        <li class="nav-item"><a href="logout.php">LogOut</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
         <!-- Masthead-->
-        <header class="masthead">
+        <!--<header class="masthead">
             <div class="container">
                 <div class="masthead-subheading">Welcome To Apollo Melodies!</div>
-                <div class="masthead-heading text-uppercase">Please log in below.</div>
+                <div class="masthead-heading text-uppercase">Ready to Test your Knowledge in Music?</div>
+                <a class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" href="signup.php">Sign Up</a>
+                <a class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" href="login.php">Log In</a>
             </div>
-        </header>
+        </header>-->
         <!-- Services-->
         <section class="page-section" id="services">
             <div class="container">
                 <div class="text-center">
-                    <h2 class="section-heading text-uppercase">Log In</h2>
-                </div>
-				<div class="text-center" align="center">
+                    <h2 class="section-heading text-uppercase"><br><br>Edit Quiz:</h2>
+                    <h3 class="section-subheading text-muted"></h3>
 					<center>
-						<div style="max-width:500px;">
-							<form action="logval.php" class="section-heading text-uppercase" style="font-weight:bold;" method="post">
+						<div style="max-width:700px;">
+							<form action="quizeditval.php" class="section-heading text-uppercase" style="font-weight:bold;" method="post">
 								<div style="text-align:left;">
-									<label for="username" id="usernamelabel">Username:</label><br>
-									<input type="text" id="username" name="username" size="80" style="width: 100%;" onblur="validatefield('username','usernamelabel');"></input>
+									<label for="quizname" id="quiznamelabel">Quiz Name:</label><br>
+									<input type="text" id="quizname" name="quizname" size="120" style="width: 100%;" value="<?echo $row["QUIZ_NAME"]; ?>" onblur="fieldValidator('quizname','quiznamelabel','Quiz Name:');"></input>
 								</div>
 								<div style="text-align:left;">
-									<label for="password"  id="passwordlabel">Password:</label><br>
-									<input type="password" id="password" name="password" size="120" style="width: 100%;" onblur="validatefield('password','passwordlabel');"></input>
+									<label for="quizgenre" id="quizgenrelabel">Quiz Genre:</label><br>
+									<input type="text" id="quizgenre" name="quizgenre" size="120" style="width: 100%;"  value="<?echo $row["QUIZ_GENRE"]; ?>" onblur="fieldValidator('quizgenre','quizgenrelabel','Quiz Genre:');"></input>
 								</div>
-								<div style="color:red;">
-									The username or password you entered does not match our records. Please try again.
+								<div style="text-align:left;">
+								<label for="passpercentage" id="passpercentagelabel">Pass Percentage (Whole number between 1 and 100):</label><br>
+									<input type="number" id="passpercentage" name="passpercentage" style="width:100%;" value="<?echo $percent; ?>" min="1" max="100" onblur="numberFieldValidator('passpercentage','passpercentagelabel','Pass Percentage (Whole number between 1 and 100):');"></input>
 								</div>
 								<div>
 									<br>
-									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="login" onmouseover="runAll();" onclick="runAll();" value="Log In" name="login"></input>
+									<input type="button" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="cancel" value="Cancel" name="cancel" onclick="window.location = 'myquizzes.php';"></input>
+									<input type="button" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="addques" value="Add Quiz Question" name="addques" onclick="window.location = 'addquizquestion.php';"></input>
+									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="updatequiz" value="Update Quiz" name="updatequiz" onmouseover="formActivator();"></input>
 								</div>
 							</form>
 						</div>
+						<br>
+						<br>
+						<form action="questioneditpreval.php" method="post">
+						<input type="text" id="currentquestion"  name="currentquestion" hidden></input><br>
+						<table border ="1" style="min-width:1300px;">
+							<tr>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Question #
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Question Text
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Question Source
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Answer 1
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Answer 2
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Answer 3
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Answer 4
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Correct Answer
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Hint
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Edit Question
+								</th>
+							</tr>
+							<?
+								$questionInc = 0;
+								while ($row2 = $result2->fetch_assoc()){
+									$questionInc = $questionInc + 1;
+									$questnumb = $row2["QUESTION_NUMBER"];
+									$highLightFunctionName = "rowHighLight('".$questnumb."');";
+									$unhighLightFunctionName = "rowUnHighLight('".$questnumb."');";
+									$createdate = new DateTime($row["DATE_CREATED"]);
+									echo '<tr id="'.$questnumb.'" onmouseover="'.$highLightFunctionName.'" onmouseout="'.$unhighLightFunctionName.'">';
+									echo "<td style='text-align:center;'>$questionInc</td>";
+									echo "<td style='text-align:center;'>".$row2["TRIVIA_QUESTION"]."</td>";
+									echo "<td style='text-align:center;'>".$row2["TRIVIA_QUESTION_CREDIT"]."</td>";
+									echo "<td style='text-align:center;'>".$row2["ANSWER_1"]."</td>";
+									echo "<td style='text-align:center;'>".$row2["ANSWER_2"]."</td>";
+									echo "<td style='text-align:center;'>".$row2["ANSWER_3"]."</td>";
+									echo "<td style='text-align:center;'>".$row2["ANSWER_4"]."</td>";
+									echo "<td style='text-align:center;'> Answer ".$row2["CORRECT_ANSWER"]."</td>";
+									echo "<td style='text-align:center;'>".$row2["HINT"]."</td>";
+									echo '<td style="text-align:center;" ><input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="editquestion" value="Edit Question" name="editquestion"></td>';
+									echo "<tr>";									
+								}								
+							?>
+						</table>
+						</form>
 					</center>
-				</div>				
+                </div>
             </div>
         </section>
         <!-- Portfolio Grid-->

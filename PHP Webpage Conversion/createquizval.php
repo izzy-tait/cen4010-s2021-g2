@@ -24,45 +24,73 @@
 
   gtag('config', 'G-BVMDDB5FX1');
 </script>
-	<script type="text/javascript">
-		function validatefield(fieldname,fieldlabel){
-			if(document.getElementById(fieldname).value.length == 0){
-					document.getElementById(fieldname).style.background= "red";
-					document.getElementById(fieldname).value = "";
-					document.getElementById(fieldlabel).innerHTML = fieldname + ": <span style='color:red;font-weight:bold;'>Cannot be blank.</span>"; 
-					formActivator();
-					
-					
+		<script type="text/javascript">
+			function redir(){
+				window.location = "https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/login.php";
+			}
+			function redir2(){
+				window.location = "https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/quizhome.php";
+			}
+			function redir3(){
+				window.location = "https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/createquizf.php";
+			}			
+		</script>
+    </head>
+	<?
+		session_name('Usersession');
+		session_start();
+		if (!isset($_SESSION["MEMBER_NUMBER"])) {
+			session_destroy ( );
+			echo "<body id='page-top' onload='redir();'>";
+		}
+		elseif (!$_SERVER["REQUEST_METHOD"] == "POST") {
+			echo "<body id='page-top' onload='redir2();'>";
+		}
+		else {
+			$membernumber = $_SESSION["MEMBER_NUMBER"];
+			$username = $_SESSION["MEMBER_ID"];
+			$firstname = $_SESSION["FIRST_NAME"];
+			$lastname = $_SESSION["LAST_NAME"];
+			$email = $_SESSION["EMAIL_ADDRESS"];				
+			$teamURL = dirname($_SERVER['PHP_SELF']) . DIRECTORY_SEPARATOR;
+			$server_root = dirname($_SERVER['PHP_SELF']);
+			$dbhost = 'localhost';  // Most likely will not need to be changed
+			$dbname = 'cen4010_s21_g02';   // Needs to be changed to your designated table database name
+			$dbuser = 'cen4010_s21_g02';   // Needs to be changed to reflect your LAMP server credentials
+			$dbpass = 'Group02sec!'; // Needs to be changed to reflect your LAMP server credentials
+			$db = new mysqli($dbhost, $dbuser, $dbpass, $dbname);			
+			if($db->connect_errno > 0) {
+				die('Unable to connect to database [' . $db->connect_error . ']');
+			}
+			$quizname = mysqli_real_escape_string($db, $_POST["quizname"]);
+			$quizgenre = mysqli_real_escape_string($db, $_POST["quizgenre"]);
+			$passpercentageraw = $_POST["passpercentage"];
+			$passpercentage = floatval(floatval($passpercentageraw)/floatval(100));
+			
+			$sqlcode = "call DEV_QUIZ_IF_QUIZ_EXISTS('$membernumber','$quizname',@exist);";
+			$result = $db->query($sqlcode);
+			$row = $result->fetch_assoc();
+			$db->close();
+			if($row["DOES_EXIST"] == 1){
+				echo "<body id='page-top' onload='redir3();'>";
 			}
 			else {
-					document.getElementById(fieldlabel).innerHTML = fieldname + ":"; 
-					document.getElementById(fieldname).style.background= "white";
-					formActivator();
+				$db2 = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+				if($db2->connect_errno > 0) {
+					die('Unable to connect to database [' . $db2->connect_error . ']');
+				}
+				$sqlcode2 = "call DEV_QUIZ_CREATE_QUIZ('$quizname','$membernumber','$quizgenre','$passpercentage');";
+				$result2 = $db2->query($sqlcode2);
+				$row2 = $result2->fetch_assoc();
+				$db2->close();
+				$quiznumber = $row2["QUIZ_NUMBER"];
+				$_SESSION["QUIZ_NUMBER"] = $quiznumber;
+				echo "<body id='page-top'>";
 			}
+			
 		}
-		function formActivator() {
-			var counterUp = 0;
-				if (document.getElementById('username').value.length == 0){
-					counterUp = counterUp + 1;
-				}
-				if (document.getElementById('password').value.length == 0){
-					counterUp = counterUp + 1;
-				}
-				if (counterUp > 0){
-					document.getElementById('login').disabled = true;
-				}
-				else {
-					document.getElementById('login').disabled = false;
-				}
-		}
-		function runAll(){
-			validatefield('username','usernamelabel');
-			validatefield('password','passwordlabel');
-			formActivator();
-		}
-	</script>
-    </head>
-    <body id="page-top">
+		
+	?>
         <!-- Navigation-->
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
             <div class="container">
@@ -73,9 +101,12 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ml-auto">
-                        <li class="nav-item"><a href="https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/">Home</a></li>
-                        <li class="nav-item"><a href="login.php">Sign in</a></li>
-                        <li class="nav-item"><a href="signup.php">Sign up</a></li>
+                        <li class="nav-item"><a href="home.php">Home</a></li>
+						<li class="nav-item"><a href="quizhome.php">Quiz Home</a></li>
+                        <li class="nav-item"><a href="">Messages</a></li>
+                        <li class="nav-item"><a href="">Friends</a></li>
+						<li class="nav-item"><a href="profileedit.php">Edit Profile</a></li>
+                        <li class="nav-item"><a href="logout.php">LogOut</a></li>
                     </ul>
                 </div>
             </div>
@@ -83,41 +114,25 @@
         <!-- Masthead-->
         <header class="masthead">
             <div class="container">
-                <div class="masthead-subheading">Welcome To Apollo Melodies!</div>
-                <div class="masthead-heading text-uppercase">Please log in below.</div>
+			<?
+				if (!$_SERVER["REQUEST_METHOD"] == "POST") {
+				}
+				else {
+					echo "<div class='masthead-subheading'>Congratulations! Your quiz has been created.</div>";
+					echo "<div class='masthead-heading text-uppercase'>What would you like to do next?</div>";
+					echo "<a class='btn btn-primary btn-xl text-uppercase js-scroll-trigger' href='addquizquestion.php'>Add Questions</a>";
+					echo "<input type='button' class='btn btn-primary btn-xl text-uppercase js-scroll-trigger'  id='quizhome' value='Return to Quiz Home' name='quizhome' onclick='redir2();'></input>";
+				}
+			?>   
             </div>
         </header>
         <!-- Services-->
-        <section class="page-section" id="services">
+        <!--<section class="page-section" id="services">
             <div class="container">
                 <div class="text-center">
-                    <h2 class="section-heading text-uppercase">Log In</h2>
                 </div>
-				<div class="text-center" align="center">
-					<center>
-						<div style="max-width:500px;">
-							<form action="logval.php" class="section-heading text-uppercase" style="font-weight:bold;" method="post">
-								<div style="text-align:left;">
-									<label for="username" id="usernamelabel">Username:</label><br>
-									<input type="text" id="username" name="username" size="80" style="width: 100%;" onblur="validatefield('username','usernamelabel');"></input>
-								</div>
-								<div style="text-align:left;">
-									<label for="password"  id="passwordlabel">Password:</label><br>
-									<input type="password" id="password" name="password" size="120" style="width: 100%;" onblur="validatefield('password','passwordlabel');"></input>
-								</div>
-								<div style="color:red;">
-									The username or password you entered does not match our records. Please try again.
-								</div>
-								<div>
-									<br>
-									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="login" onmouseover="runAll();" onclick="runAll();" value="Log In" name="login"></input>
-								</div>
-							</form>
-						</div>
-					</center>
-				</div>				
             </div>
-        </section>
+        </section>->>
         <!-- Portfolio Grid-->
         <!--<section class="page-section bg-light" id="portfolio">
             <div class="container">

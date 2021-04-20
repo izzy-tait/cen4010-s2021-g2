@@ -24,45 +24,121 @@
 
   gtag('config', 'G-BVMDDB5FX1');
 </script>
-	<script type="text/javascript">
-		function validatefield(fieldname,fieldlabel){
-			if(document.getElementById(fieldname).value.length == 0){
-					document.getElementById(fieldname).style.background= "red";
-					document.getElementById(fieldname).value = "";
-					document.getElementById(fieldlabel).innerHTML = fieldname + ": <span style='color:red;font-weight:bold;'>Cannot be blank.</span>"; 
-					formActivator();
-					
-					
+		<script type="text/javascript">
+			function redir(){
+				window.location = "https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/login.php";
 			}
-			else {
-					document.getElementById(fieldlabel).innerHTML = fieldname + ":"; 
-					document.getElementById(fieldname).style.background= "white";
-					formActivator();
+			function redir2(){
+				window.location = "https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/quizhome.php";
 			}
-		}
-		function formActivator() {
-			var counterUp = 0;
-				if (document.getElementById('username').value.length == 0){
-					counterUp = counterUp + 1;
-				}
-				if (document.getElementById('password').value.length == 0){
-					counterUp = counterUp + 1;
-				}
-				if (counterUp > 0){
-					document.getElementById('login').disabled = true;
+			function fieldValidator(fieldName,fieldlabel,backText){
+				if (document.getElementById(fieldName).value.length == 0){
+					document.getElementById(fieldName).style.background= "red";
+					document.getElementById(fieldName).value = "";
+					document.getElementById(fieldlabel).innerHTML = backText + " <span style='color:red;font-weight:bold;'> Must not be blank.</span>"; 
+					formActivator();
 				}
 				else {
-					document.getElementById('login').disabled = false;
+					document.getElementById(fieldName).style.background= "white";
+					document.getElementById(fieldlabel).innerHTML = backText;
+					formActivator();
 				}
-		}
-		function runAll(){
-			validatefield('username','usernamelabel');
-			validatefield('password','passwordlabel');
-			formActivator();
-		}
-	</script>
+			}
+			function linkValidator(fieldName,fieldlabel){
+				if (document.getElementById(fieldName).value.length == 0){
+					document.getElementById(fieldName).style.background= "red";
+					document.getElementById(fieldName).value = "";
+					document.getElementById(fieldlabel).style.color = "Red"; 
+					formActivator();
+				}
+				else {
+					document.getElementById(fieldName).style.background= "white";
+					document.getElementById(fieldlabel).style.color = "Black";
+					formActivator();
+				}
+			}
+			function selectFieldValidator(fieldName,fieldlabel,backText){
+				if (document.getElementById(fieldName).value == 0){
+					document.getElementById(fieldName).style.background= "red";
+					document.getElementById(fieldName).value = "";
+					document.getElementById(fieldlabel).innerHTML = backText + " <span style='color:red;font-weight:bold;'> Must not be blank.</span>"; 
+					formActivator();
+				}
+				else {
+					document.getElementById(fieldName).style.background= "white";
+					document.getElementById(fieldlabel).innerHTML = backText;
+					formActivator();
+				}
+			}
+			function formActivator(){
+				var assesor = 0;
+				if(document.getElementById('question').value.length == 0){
+					assesor = assesor + 1;
+				}
+				if(document.getElementById('source').value.length == 0){
+					assesor = assesor + 1;
+				}
+				if(document.getElementById('soundlink').value.length == 0){
+					assesor = assesor + 1;
+				}
+				if(document.getElementById('answer1').value.length == 0){
+					assesor = assesor + 1;
+				}
+				if(document.getElementById('answer2').value.length == 0){
+					assesor = assesor + 1;
+				}
+				if(document.getElementById('answer3').value.length == 0){
+					assesor = assesor + 1;
+				}
+				if(document.getElementById('answer4').value.length == 0){
+					assesor = assesor + 1;
+				}
+				if(document.getElementById('correctans').value == 0){
+					assesor = assesor + 1;
+				}
+				if (assesor == 0){
+					document.getElementById('createquestion').disabled = false;
+				}
+				else {
+					document.getElementById('createquestion').disabled = true;
+				}
+			}
+		</script>
     </head>
-    <body id="page-top">
+		<?
+			session_name('Usersession');
+			session_start();
+			if (!isset($_SESSION["MEMBER_NUMBER"])) {
+				session_destroy ( );
+				echo "<body id='page-top' onload='redir();'>";
+			}
+			elseif (!isset($_SESSION["QUIZ_NUMBER"])) {
+				echo "<body id='page-top' onload='redir2();'>";
+			}
+			else {
+				$membernumber = $_SESSION["MEMBER_NUMBER"];
+				$username = $_SESSION["MEMBER_ID"];
+				$firstname = $_SESSION["FIRST_NAME"];
+				$lastname = $_SESSION["LAST_NAME"];
+				$email = $_SESSION["EMAIL_ADDRESS"];
+				$quiznumber = $_SESSION["QUIZ_NUMBER"];
+				$teamURL = dirname($_SERVER['PHP_SELF']) . DIRECTORY_SEPARATOR;
+				$server_root = dirname($_SERVER['PHP_SELF']);
+				$dbhost = 'localhost';  // Most likely will not need to be changed
+				$dbname = 'cen4010_s21_g02';   // Needs to be changed to your designated table database name
+				$dbuser = 'cen4010_s21_g02';   // Needs to be changed to reflect your LAMP server credentials
+				$dbpass = 'Group02sec!'; // Needs to be changed to reflect your LAMP server credentials
+				$db = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+				if($db->connect_errno > 0) {
+					die('Unable to connect to database [' . $db->connect_error . ']');
+				}
+				$sqlcode = "SELECT QUIZ_NAME FROM DEV_QUIZ_HEADER WHERE QUIZ_NUMBER = '$quiznumber';";
+				$result = $db->query($sqlcode);
+				$row = $result->fetch_assoc();
+				$db->close();
+			
+			}
+		?>
         <!-- Navigation-->
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
             <div class="container">
@@ -73,49 +149,86 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ml-auto">
-                        <li class="nav-item"><a href="https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/">Home</a></li>
-                        <li class="nav-item"><a href="login.php">Sign in</a></li>
-                        <li class="nav-item"><a href="signup.php">Sign up</a></li>
+                        <li class="nav-item"><a href="home.php">Home</a></li>
+						<li class="nav-item"><a href="quizhome.php">Quiz Home</a></li>
+                        <li class="nav-item"><a href="">Messages</a></li>
+                        <li class="nav-item"><a href="">Friends</a></li>
+						<li class="nav-item"><a href="profileedit.php">Edit Profile</a></li>
+                        <li class="nav-item"><a href="logout.php">LogOut</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
         <!-- Masthead-->
-        <header class="masthead">
+        <!--<header class="masthead">
             <div class="container">
                 <div class="masthead-subheading">Welcome To Apollo Melodies!</div>
-                <div class="masthead-heading text-uppercase">Please log in below.</div>
+                <div class="masthead-heading text-uppercase">Ready to Test your Knowledge in Music?</div>
             </div>
-        </header>
+        </header>-->
         <!-- Services-->
         <section class="page-section" id="services">
             <div class="container">
                 <div class="text-center">
-                    <h2 class="section-heading text-uppercase">Log In</h2>
-                </div>
-				<div class="text-center" align="center">
+                    <h2 class="section-heading text-uppercase"><br><br><? echo $row["QUIZ_NAME"];?> - Add Quiz Question</h2>
 					<center>
-						<div style="max-width:500px;">
-							<form action="logval.php" class="section-heading text-uppercase" style="font-weight:bold;" method="post">
+						<div style="max-width:600px;">
+							<form action="addquizquestionval.php" class="section-heading text-uppercase" style="font-weight:bold;" method="post">
 								<div style="text-align:left;">
-									<label for="username" id="usernamelabel">Username:</label><br>
-									<input type="text" id="username" name="username" size="80" style="width: 100%;" onblur="validatefield('username','usernamelabel');"></input>
+									<label for="question" id="questionlabel">Your Trivia Question:</label><br>
+									<input type="text" id="question" name="question" size="120" style="width: 100%;" onblur="fieldValidator('question','questionlabel','Your Trivia Question:');"></input>
 								</div>
 								<div style="text-align:left;">
-									<label for="password"  id="passwordlabel">Password:</label><br>
-									<input type="password" id="password" name="password" size="120" style="width: 100%;" onblur="validatefield('password','passwordlabel');"></input>
+									<label for="source" id="sourcelabel">Question info source:</label><br>
+									<input type="text" id="source" name="source" size="120" style="width: 100%;"  onblur="fieldValidator('source','sourcelabel','Question info source:');"></input>
 								</div>
-								<div style="color:red;">
-									The username or password you entered does not match our records. Please try again.
+								<div style="text-align:left;">
+									<label for="soundlink" id="soundlinklabel">Music Webpage Link:</label><br>
+									<input type="text" id="soundlink" name="soundlink" size="1000" style="width: 100%;"  onblur="linkValidator('soundlink','soundlinklabel');"></input>
+								</div>
+								<div style="text-align:left;">
+									<label for="answer1" id="answer1label">Answer 1:</label><br>
+									<input type="text" id="answer1" name="answer1" size="120" style="width: 100%;"  onblur="fieldValidator('answer1','answer1label','Answer 1:');"></input>
+								</div>
+								<div style="text-align:left;">
+									<label for="answer2" id="answer2label">Answer 2:</label><br>
+									<input type="text" id="answer2" name="answer2" size="120" style="width: 100%;"  onblur="fieldValidator('answer2','answer2label','Answer 2:');"></input>
+								</div>
+								<div style="text-align:left;">
+									<label for="answer3" id="answer3label">Answer 3:</label><br>
+									<input type="text" id="answer3" name="answer3" size="120" style="width: 100%;"  onblur="fieldValidator('answer3','answer3label','Answer 3:');"></input>
+								</div>
+								<div style="text-align:left;">
+									<label for="answer4" id="answer4label">Answer 4:</label><br>
+									<input type="text" id="answer4" name="answer4" size="120" style="width: 100%;"  onblur="fieldValidator('answer4','answer4label','Answer 4:');"></input>
+								</div>
+								<div style="text-align:left;">
+									<label for="correctans" id="correctanslabel">Correct Answer:</label><br>
+									<select id="correctans" name="correctans"onblur="selectFieldValidator('correctans','correctanslabel','Correct Answer:');">
+										<option value="0" selected="selected"></option>
+										<option value="1">Answer 1</option>
+										<option value="2">Answer 2</option>
+										<option value="3">Answer 3</option>
+										<option value="4">Answer 4</option>
+									</select>
+								</div>
+								<div style="text-align:left;">
+									<label for="hint" id="hintlabel">Question Hint (Optional):</label><br>
+									<input type="text" id="hint" name="hint" size="120" style="width: 100%;");"></input>
 								</div>
 								<div>
 									<br>
-									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="login" onmouseover="runAll();" onclick="runAll();" value="Log In" name="login"></input>
+									<input type="button" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="cancel" value="Cancel" name="cancel" onclick="window.location = 'quizhome.php';"></input>
+									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="createquestion" value="Create Question" name="createquestion" onmouseover="formActivator();" disabled></input>
 								</div>
 							</form>
+							<center>
+								<br>
+								<h3 class="section-subheading text-muted"  style="max-width:500px;"><span style="text-decoration:underline;">Please note:</span> Due to copyright rules, we must display the name and title of the track in the question so these two items are not good quiz question choices.<br>Your questions can be related to trivia about the song. Please be certain to verify the accuracy of any content mentioned in your question and list the information source.<br>If you are the source of the information please list yourself.</h3>
+							</center>
 						</div>
 					</center>
-				</div>				
+                </div>
             </div>
         </section>
         <!-- Portfolio Grid-->

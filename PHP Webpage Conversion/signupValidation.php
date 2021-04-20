@@ -3,8 +3,8 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="Sign Up Validation" />
-        <meta name="author" content="Team Rocket" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
         <title>Apollo Melodies</title>
         <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
         <!-- Font Awesome icons (free version)-->
@@ -15,6 +15,15 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BVMDDB5FX1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BVMDDB5FX1');
+</script>
 		<script type="text/javascript">
 			function redirect(){
 				window.location = "https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/";
@@ -51,14 +60,14 @@
             <div class="container">
 			<?
 				if ($_SERVER["REQUEST_METHOD"] == "POST") {
+					$password = $_POST["password"];
+					$confirmpassword = $_POST["password"];
+					$password = substr(crypt($password,'$5$rounds=5000$oursaltfstring$'),30);
 					$username = $_POST["username"];
 					$firstname = $_POST["firstname"];
 					$lastname = $_POST["lastname"];
 					$email = $_POST["email"];
-					$password = $_POST["password"];
-					$confirmpassword = $_POST["password"];
-					$password = crypt($password,'st');
-				
+					
 					$teamURL = dirname($_SERVER['PHP_SELF']) . DIRECTORY_SEPARATOR;
 					$server_root = dirname($_SERVER['PHP_SELF']);
 					$dbhost = 'localhost';  // Most likely will not need to be changed
@@ -75,6 +84,7 @@
 					$db->close();
 					if($row["DOES_EXIST"] == 0){
 						$db2 = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+
 						$sqlcode2 = "call DEV_PROFILE_CREATE_PROFILE('$username','$password','$firstname','$lastname','$email',@was_successful);";
 						$result2 = $db2->query($sqlcode2);
 						$row2 = $result2->fetch_assoc();

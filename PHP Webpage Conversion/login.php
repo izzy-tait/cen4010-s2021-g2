@@ -3,8 +3,8 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="Login Page" />
-        <meta name="author" content="Team Rocket" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
         <title>Apollo Melodies</title>
         <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
         <!-- Font Awesome icons (free version)-->
@@ -15,15 +15,27 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BVMDDB5FX1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BVMDDB5FX1');
+</script>
 	<script type="text/javascript">
-		function validatefield(fieldname){
+		function validatefield(fieldname,fieldlabel){
 			if(document.getElementById(fieldname).value.length == 0){
 					document.getElementById(fieldname).style.background= "red";
 					document.getElementById(fieldname).value = "";
+					document.getElementById(fieldlabel).innerHTML = fieldname + ": <span style='color:red;font-weight:bold;'>Cannot be blank.</span>"; 
 					formActivator();
-					alert("Please enter " + fieldname + ".");
+					
+					
 			}
 			else {
+					document.getElementById(fieldlabel).innerHTML = fieldname + ":"; 
 					document.getElementById(fieldname).style.background= "white";
 					formActivator();
 			}
@@ -42,6 +54,11 @@
 				else {
 					document.getElementById('login').disabled = false;
 				}
+		}
+		function runAll(){
+			validatefield('username','usernamelabel');
+			validatefield('password','passwordlabel');
+			formActivator();
 		}
 	</script>
     </head>
@@ -81,16 +98,16 @@
 						<div style="max-width:500px;">
 							<form action="logval.php" class="section-heading text-uppercase" style="font-weight:bold;" method="post">
 								<div style="text-align:left;">
-									<label for="username">Username:</label><br>
-									<input type="text" id="username" name="username" size="80" style="width: 100%;" onblur="validatefield('username');"></input>
+									<label for="username" id="usernamelabel">Username:</label><br>
+									<input type="text" id="username" name="username" size="80" style="width: 100%;" onblur="validatefield('username','usernamelabel');"></input>
 								</div>
 								<div style="text-align:left;">
-									<label for="password">Password:</label><br>
-									<input type="password" id="password" name="password" size="120" style="width: 100%;" onblur="validatefield('password');"></input>
+									<label for="password"  id="passwordlabel">Password:</label><br>
+									<input type="password" id="password" name="password" size="120" style="width: 100%;" onblur="validatefield('password','passwordlabel');"></input>
 								</div>
 								<div>
 									<br>
-									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="login" value="Log In" name="login" disabled></input>
+									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="login" onmouseover="runAll();" onclick="runAll();" value="Log In" name="login"></input>
 								</div>
 							</form>
 						</div>

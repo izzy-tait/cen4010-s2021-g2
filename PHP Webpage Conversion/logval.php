@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BVMDDB5FX1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BVMDDB5FX1');
+</script>
 		<script type="text/javascript">
 			function redirect(){
 				window.location = "https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/";
@@ -17,7 +26,7 @@
 		if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			$username = $_POST["username"];
 			$password = $_POST["password"];
-			$password = crypt($password,'st');
+			$password = substr(crypt($password,'$5$rounds=5000$oursaltfstring$'),30);
 			
 			$teamURL = dirname($_SERVER['PHP_SELF']) . DIRECTORY_SEPARATOR;
 			$server_root = dirname($_SERVER['PHP_SELF']);

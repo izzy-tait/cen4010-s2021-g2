@@ -8,13 +8,6 @@
         <title>Apollo Melodies</title>
         <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
         <!-- Font Awesome icons (free version)-->
-        <script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js" crossorigin="anonymous"></script>
-        <!-- Google fonts-->
-        <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
-        <link href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
-        <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
-        <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="css/styles.css" rel="stylesheet" />
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-BVMDDB5FX1"></script>
 <script>
@@ -24,45 +17,57 @@
 
   gtag('config', 'G-BVMDDB5FX1');
 </script>
-	<script type="text/javascript">
-		function validatefield(fieldname,fieldlabel){
-			if(document.getElementById(fieldname).value.length == 0){
-					document.getElementById(fieldname).style.background= "red";
-					document.getElementById(fieldname).value = "";
-					document.getElementById(fieldlabel).innerHTML = fieldname + ": <span style='color:red;font-weight:bold;'>Cannot be blank.</span>"; 
-					formActivator();
-					
-					
+        <script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+        <link href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+		<script>
+			function redir(){
+				window.location = "https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/login.php";
 			}
-			else {
-					document.getElementById(fieldlabel).innerHTML = fieldname + ":"; 
-					document.getElementById(fieldname).style.background= "white";
-					formActivator();
+			function rowHighLight(rowId){
+				document.getElementById(rowId).style.background = '#d3c6dc';
+				document.getElementById("currentquiz").value = rowId;
 			}
-		}
-		function formActivator() {
-			var counterUp = 0;
-				if (document.getElementById('username').value.length == 0){
-					counterUp = counterUp + 1;
-				}
-				if (document.getElementById('password').value.length == 0){
-					counterUp = counterUp + 1;
-				}
-				if (counterUp > 0){
-					document.getElementById('login').disabled = true;
-				}
-				else {
-					document.getElementById('login').disabled = false;
-				}
-		}
-		function runAll(){
-			validatefield('username','usernamelabel');
-			validatefield('password','passwordlabel');
-			formActivator();
-		}
-	</script>
+			function rowUnHighLight(rowId){
+				document.getElementById(rowId).style.background = '#ffffff';
+			}
+		</script>
     </head>
-    <body id="page-top">
+	<?
+		session_name('Usersession');
+		session_start();
+		if (!isset($_SESSION["MEMBER_NUMBER"])) {
+			session_destroy ( );
+			echo "<body id='page-top' onload='redir();'>";
+		}
+		else {
+			$membernumber = $_SESSION["MEMBER_NUMBER"];
+			$username = $_SESSION["MEMBER_ID"];
+			$firstname = $_SESSION["FIRST_NAME"];
+			$lastname = $_SESSION["LAST_NAME"];
+			$email = $_SESSION["EMAIL_ADDRESS"];
+			
+			$teamURL = dirname($_SERVER['PHP_SELF']) . DIRECTORY_SEPARATOR;
+			$server_root = dirname($_SERVER['PHP_SELF']);
+			$dbhost = 'localhost';  // Most likely will not need to be changed
+			$dbname = 'cen4010_s21_g02';   // Needs to be changed to your designated table database name
+			$dbuser = 'cen4010_s21_g02';   // Needs to be changed to reflect your LAMP server credentials
+			$dbpass = 'Group02sec!'; // Needs to be changed to reflect your LAMP server credentials
+			$db = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+			if($db->connect_errno > 0) {
+				die('Unable to connect to database [' . $db->connect_error . ']');
+			}
+			$sqlcode = "SELECT * FROM DEV_QUIZ_HEADER WHERE QUIZ_CREATOR_ID = '$membernumber' AND  	IS_DELETED='0'";
+			$result = $db->query($sqlcode);
+			//$row = $result->fetch_assoc();
+			$db->close();
+			echo "<body id='page-top'>";
+		}		
+	?>
         <!-- Navigation-->
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
             <div class="container">
@@ -73,143 +78,88 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ml-auto">
-                        <li class="nav-item"><a href="https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/">Home</a></li>
-                        <li class="nav-item"><a href="login.php">Sign in</a></li>
-                        <li class="nav-item"><a href="signup.php">Sign up</a></li>
+                        <li class="nav-item"><a href="home.php">Home</a></li>
+						<li class="nav-item"><a href="quizhome.php">Quiz Home</a></li>
+                        <!--<li class="nav-item"><a href="">Messages</a></li>
+                        <li class="nav-item"><a href="">Friends</a></li>-->
+						<li class="nav-item"><a href="profileedit.php">Edit Profile</a></li>
+                        <li class="nav-item"><a href="logout.php">LogOut</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
         <!-- Masthead-->
-        <header class="masthead">
+        <!--<header class="masthead">
             <div class="container">
                 <div class="masthead-subheading">Welcome To Apollo Melodies!</div>
-                <div class="masthead-heading text-uppercase">Please log in below.</div>
+                <div class="masthead-heading text-uppercase">Ready to Test your Knowledge in Music?</div>
+                <a class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" href="signup.php">Sign Up</a>
+                <a class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" href="login.php">Log In</a>
             </div>
-        </header>
+        </header>-->
         <!-- Services-->
         <section class="page-section" id="services">
             <div class="container">
                 <div class="text-center">
-                    <h2 class="section-heading text-uppercase">Log In</h2>
-                </div>
-				<div class="text-center" align="center">
+                    <h2 class="section-heading text-uppercase"><br><br>My Quizzes</h2>
+                    <h3 class="section-subheading text-muted">All of your active quizzes.</h3>
+					<form action="quizeditpreval.php" method="post">
 					<center>
-						<div style="max-width:500px;">
-							<form action="logval.php" class="section-heading text-uppercase" style="font-weight:bold;" method="post">
-								<div style="text-align:left;">
-									<label for="username" id="usernamelabel">Username:</label><br>
-									<input type="text" id="username" name="username" size="80" style="width: 100%;" onblur="validatefield('username','usernamelabel');"></input>
-								</div>
-								<div style="text-align:left;">
-									<label for="password"  id="passwordlabel">Password:</label><br>
-									<input type="password" id="password" name="password" size="120" style="width: 100%;" onblur="validatefield('password','passwordlabel');"></input>
-								</div>
-								<div style="color:red;">
-									The username or password you entered does not match our records. Please try again.
-								</div>
-								<div>
-									<br>
-									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="login" onmouseover="runAll();" onclick="runAll();" value="Log In" name="login"></input>
-								</div>
-							</form>
-						</div>
+						<input type="text" id="currentquiz"  name="currentquiz" hidden></input><br>
+						<table border ="1" style="min-width:750px;">
+							<tr>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Quiz Name
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Genre
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Date Created
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									Date Last Edited
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									% to Pass
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">
+									# of Questions
+								</th>
+								<th style="text-align:center;" bgcolor="#a48ab8">Edit Quiz
+								</th>
+							</tr>
+							<?
+								while ($row = $result->fetch_assoc()){
+									$quiznumb = $row["QUIZ_NUMBER"];
+									$highLightFunctionName = "rowHighLight('".$quiznumb."');";
+									$unhighLightFunctionName = "rowUnHighLight('".$quiznumb."');";
+									$createdate = new DateTime($row["DATE_CREATED"]);
+									$editdate = new DateTime($row["DATE_LAST_EDITED"]);
+									$percentage = floatval(floatval($row["PASS_PERCENTAGE"])*floatval(100));
+									echo '<tr id="'.$quiznumb.'" onmouseover="'.$highLightFunctionName.'" onmouseout="'.$unhighLightFunctionName.'">';
+									echo '<td style="text-align:center;">'.$row["QUIZ_NAME"].'</td>';
+									echo '<td style="text-align:center;">'.$row["QUIZ_GENRE"].'</td>';
+									echo '<td style="text-align:center;">'.$createdate->format("m/d/Y").'</td>';
+									echo '<td style="text-align:center;">'.$editdate->format("m/d/Y").'</td>';
+									echo '<td style="text-align:center;">'.$percentage.'%</td>';
+									echo '<td style="text-align:center;">'.$row["TOTAL_ACTIVE_QUESTIONS"].'</td>';
+									echo '<td style="text-align:center;" ><input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="createquestion" value="Edit Quiz" name="createquestion"></td>';
+									echo '</tr>';
+								}
+							?>
+						</table>
 					</center>
-				</div>				
+					</form>
+                </div>
             </div>
         </section>
         <!-- Portfolio Grid-->
         <!--<section class="page-section bg-light" id="portfolio">
             <div class="container">
                 <div class="text-center">
-                    <h2 class="section-heading text-uppercase">Portfolio</h2>
-                    <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4 col-sm-6 mb-4">
-                        <div class="portfolio-item">
-                            <a class="portfolio-link" data-toggle="modal" href="#portfolioModal1">
-                                <div class="portfolio-hover">
-                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                                </div>
-                                <img class="img-fluid" src="assets/img/portfolio/01-thumbnail.jpg" alt="" />
-                            </a>
-                            <div class="portfolio-caption">
-                                <div class="portfolio-caption-heading">Threads</div>
-                                <div class="portfolio-caption-subheading text-muted">Illustration</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-sm-6 mb-4">
-                        <div class="portfolio-item">
-                            <a class="portfolio-link" data-toggle="modal" href="#portfolioModal2">
-                                <div class="portfolio-hover">
-                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                                </div>
-                                <img class="img-fluid" src="assets/img/portfolio/02-thumbnail.jpg" alt="" />
-                            </a>
-                            <div class="portfolio-caption">
-                                <div class="portfolio-caption-heading">Explore</div>
-                                <div class="portfolio-caption-subheading text-muted">Graphic Design</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-sm-6 mb-4">
-                        <div class="portfolio-item">
-                            <a class="portfolio-link" data-toggle="modal" href="#portfolioModal3">
-                                <div class="portfolio-hover">
-                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                                </div>
-                                <img class="img-fluid" src="assets/img/portfolio/03-thumbnail.jpg" alt="" />
-                            </a>
-                            <div class="portfolio-caption">
-                                <div class="portfolio-caption-heading">Finish</div>
-                                <div class="portfolio-caption-subheading text-muted">Identity</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-sm-6 mb-4 mb-lg-0">
-                        <div class="portfolio-item">
-                            <a class="portfolio-link" data-toggle="modal" href="#portfolioModal4">
-                                <div class="portfolio-hover">
-                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                                </div>
-                                <img class="img-fluid" src="assets/img/portfolio/04-thumbnail.jpg" alt="" />
-                            </a>
-                            <div class="portfolio-caption">
-                                <div class="portfolio-caption-heading">Lines</div>
-                                <div class="portfolio-caption-subheading text-muted">Branding</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-sm-6 mb-4 mb-sm-0">
-                        <div class="portfolio-item">
-                            <a class="portfolio-link" data-toggle="modal" href="#portfolioModal5">
-                                <div class="portfolio-hover">
-                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                                </div>
-                                <img class="img-fluid" src="assets/img/portfolio/05-thumbnail.jpg" alt="" />
-                            </a>
-                            <div class="portfolio-caption">
-                                <div class="portfolio-caption-heading">Southwest</div>
-                                <div class="portfolio-caption-subheading text-muted">Website Design</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-sm-6">
-                        <div class="portfolio-item">
-                            <a class="portfolio-link" data-toggle="modal" href="#portfolioModal6">
-                                <div class="portfolio-hover">
-                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                                </div>
-                                <img class="img-fluid" src="assets/img/portfolio/06-thumbnail.jpg" alt="" />
-                            </a>
-                            <div class="portfolio-caption">
-                                <div class="portfolio-caption-heading">Window</div>
-                                <div class="portfolio-caption-subheading text-muted">Photography</div>
-                            </div>
-                        </div>
-                    </div>
+                    <h2 class="section-heading text-uppercase"></h2>
+                    <h3 class="section-subheading text-muted"></h3>
                 </div>
             </div>
         </section>-->

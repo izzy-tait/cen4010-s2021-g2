@@ -3,8 +3,8 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="Edit Profile Page" />
-        <meta name="author" content="Team Rocket" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
         <title>Apollo Melodies</title>
         <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
         <!-- Font Awesome icons (free version)-->
@@ -15,6 +15,15 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BVMDDB5FX1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BVMDDB5FX1');
+</script>
 		<script type="text/javascript">
 			function redir(){
 				window.location = "https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/login.php";
@@ -60,10 +69,46 @@
 				}
 			}
 			function passwordValidator(fieldName,fieldlabel){
-				if (document.getElementById(fieldName).value.length < 9){
+				var hasUpper = 0;
+				var hasLower = 0;
+				var hasNumber = 0;
+				var hasPlus = 0;
+				var hasSpace = 0;
+				var i = 0;
+				var testString = document.getElementById(fieldName).value;
+				for (i = 0; i < document.getElementById(fieldName).value.length; i++){
+					if (testString.charCodeAt(i) == 43){
+						hasPlus = hasPlus + 1;
+					}
+					else if (testString.charCodeAt(i) == 32){
+						hasSpace = hasSpace + 1;
+					}
+					else if (testString.charCodeAt(i) > 64 && testString.charCodeAt(i) < 91){
+						hasUpper = hasUpper +1;
+					}
+					else if (testString.charCodeAt(i) > 96 && testString.charCodeAt(i) < 123){
+						hasLower = hasLower +1;
+					}
+					else if (testString.charCodeAt(i) > 47 && testString.charCodeAt(i) < 58){
+						hasNumber = hasNumber +1;
+					}
+				}
+				if (document.getElementById(fieldName).value.length < 9 || document.getElementById(fieldName).value.length > 50){
 					document.getElementById(fieldName).style.background= "red";
 					document.getElementById(fieldName).value = "";
 					document.getElementById(fieldlabel).innerHTML = "Password: <span style='color:red;font-weight:bold;'> Password length must be 9 to 50 characters.</span>";
+					formActivator();
+				}
+				else if (hasPlus > 0 || hasSpace > 0){
+					document.getElementById(fieldName).style.background= "red";
+					document.getElementById(fieldName).value = "";
+					document.getElementById(fieldlabel).innerHTML = "Password: <span style='color:red;font-weight:bold;'> Password cannot contain a '+' sign or a space.</span>";
+					formActivator();
+				}
+				else if (hasUpper == 0 || hasLower == 0 || hasNumber == 0){
+					document.getElementById(fieldName).style.background= "red";
+					document.getElementById(fieldName).value = "";
+					document.getElementById(fieldlabel).innerHTML = "Password: <span style='color:red;font-weight:bold;'> Password must have uppercase, lowercase and numbers.</span>";
 					formActivator();
 				}
 				else {
@@ -121,6 +166,14 @@
 					document.getElementById('update').disabled = false;
 				}
 			}
+			function runAll(){
+				usernameValidator('username','usernamelabel');
+				nameValidator('firstname','firstnamelabel');
+				nameValidator('lastname','lastnamelabel');
+				emailValidator('email','emaillabel');
+				passwordValidator('password','passwordlabel');
+				confirmPasswordValidator('confirmpassword','password','confirmpasswordlabel');
+			}
 		</script>
     </head>
 	<?
@@ -128,6 +181,7 @@
 		session_start();
 		if (!isset($_SESSION["MEMBER_NUMBER"])) {
 			echo "<body id='page-top' onload='redir();'>";
+			session_destroy();
 		}
 		else {
 			$membernumber = $_SESSION["MEMBER_NUMBER"];
@@ -136,6 +190,22 @@
 			$lastname = $_SESSION["LAST_NAME"];
 			$email = $_SESSION["EMAIL_ADDRESS"];
 			echo "<body id='page-top'>";
+			
+			
+			$teamURL = dirname($_SERVER['PHP_SELF']) . DIRECTORY_SEPARATOR;
+			$server_root = dirname($_SERVER['PHP_SELF']);
+			$dbhost = 'localhost';  // Most likely will not need to be changed
+			$dbname = 'cen4010_s21_g02';   // Needs to be changed to your designated table database name
+			$dbuser = 'cen4010_s21_g02';   // Needs to be changed to reflect your LAMP server credentials
+			$dbpass = 'Group02sec!'; // Needs to be changed to reflect your LAMP server credentials
+			$db = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+			if($db->connect_errno > 0) {
+				die('Unable to connect to database [' . $db->connect_error . ']');
+			}
+			$sqlcode = "SELECT * FROM DEV_MEMBER_PROFILE WHERE MEMBER_NUMBER = '$membernumber' LIMIT 1;";
+			$result = $db->query($sqlcode);
+			$row = $result->fetch_assoc();
+			$db->close();
 		}
 		
 	?>
@@ -149,10 +219,10 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ml-auto">
-                        <li class="nav-item"><a href="https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/">Home</a></li>
-						<li class="nav-item"><a href="">Quiz Home</a></li>
-                        <li class="nav-item"><a href="">Messages</a></li>
-                        <li class="nav-item"><a href="">Friends</a></li>
+                        <li class="nav-item"><a href="home.php">Home</a></li>
+						<li class="nav-item"><a href="quizhome.php">Quiz Home</a></li>
+                        <!--<li class="nav-item"><a href="">Messages</a></li>
+                        <li class="nav-item"><a href="">Friends</a></li>-->
 						<li class="nav-item"><a href="profileedit.php">Edit Profile</a></li>
                         <li class="nav-item"><a href="logout.php">LogOut</a></li>
                     </ul>
@@ -180,19 +250,19 @@
 							<form action="updatevalidation.php" class="section-heading text-uppercase" style="font-weight:bold;" method="post">
 								<div style="text-align:left;">
 									<label for="username"id="usernamelabel">Username:</label><br>
-									<input type="text" id="username" name="username" size="80" style="width: 100%;" onblur="usernameValidator('username','usernamelabel');"></input>
+									<input type="text" id="username" name="username" size="80" style="width: 100%;" value="<? echo $row["MEMBER_ID"];?>" onblur="usernameValidator('username','usernamelabel');"></input>
 								</div>
 								<div style="text-align:left;">
 									<label for="firstname" id="firstnamelabel">FirstName:</label><br>
-									<input type="text" id="firstname" name="firstname" size="120" style="width: 100%;" onblur="nameValidator('firstname','firstnamelabel');"></input>
+									<input type="text" id="firstname" name="firstname" size="120" style="width: 100%;" value="<? echo $row["FIRST_NAME"];?>" onblur="nameValidator('firstname','firstnamelabel');"></input>
 								</div>
 								<div style="text-align:left;">
 								<label for="lastname" id="lastnamelabel">LastName:</label><br>
-									<input type="text" id="lastname" name="lastname" size="120" style="width: 100%;" onblur="nameValidator('lastname','lastnamelabel');"></input>
+									<input type="text" id="lastname" name="lastname" size="120" style="width: 100%;" value="<? echo $row["LAST_NAME"];?>" onblur="nameValidator('lastname','lastnamelabel');"></input>
 								</div>
 								<div style="text-align:left;">
 								<label for="email" id="emaillabel">Email Address:</label><br>
-									<input type="text" id="email" name="email" size="120" style="width: 100%;" onblur="emailValidator('email','emaillabel');"></input>
+									<input type="text" id="email" name="email" size="120" style="width: 100%;"  value="<? echo $row["EMAIL_ADDRESS"];?>"  onblur="emailValidator('email','emaillabel');"></input>
 								</div>
 								<div style="text-align:left;">
 								<label for="Ppassword" id="passwordlabel">Password:</label><br>
@@ -204,7 +274,8 @@
 								</div>
 								<div>
 									<br>
-									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="update" onmouseover="formActivator();" onfocus="formActivator();" value="Update Profile" name="update" disabled></input>
+									<input type="button" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="cancel" value="Cancel" name="cancel" onclick="window.location = 'home.php';"></input>
+									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="update" onmouseover="runAll();" onclick="runAll();" value="Update Profile" name="update"></input>
 								</div>
 							</form>
 						</div>

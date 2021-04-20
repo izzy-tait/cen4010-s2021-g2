@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BVMDDB5FX1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BVMDDB5FX1');
+</script>
 		<script type="text/javascript">
 			function redirect(){
 				window.location = "https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/";
@@ -39,7 +48,7 @@
 			$newlastname = $_POST["lastname"];
 			$newemail = $_POST["email"];
 			$newpassword = $_POST["password"];
-			$newpassword = crypt($newpassword,'st');
+			$newpassword = substr(crypt($newpassword,'$5$rounds=5000$oursaltfstring$'),30);
 			
 			if ($newusername == $oldusername){
 				$db = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
@@ -103,6 +112,5 @@
 			}			
 		}		
 	?>
-	
 		</body>
 </html>

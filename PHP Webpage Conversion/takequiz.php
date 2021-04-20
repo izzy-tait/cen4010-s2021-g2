@@ -24,45 +24,71 @@
 
   gtag('config', 'G-BVMDDB5FX1');
 </script>
-	<script type="text/javascript">
-		function validatefield(fieldname,fieldlabel){
-			if(document.getElementById(fieldname).value.length == 0){
-					document.getElementById(fieldname).style.background= "red";
-					document.getElementById(fieldname).value = "";
-					document.getElementById(fieldlabel).innerHTML = fieldname + ": <span style='color:red;font-weight:bold;'>Cannot be blank.</span>"; 
-					formActivator();
-					
-					
+		<script>
+			function redir(){
+				window.location = "login.php";
 			}
-			else {
-					document.getElementById(fieldlabel).innerHTML = fieldname + ":"; 
-					document.getElementById(fieldname).style.background= "white";
-					formActivator();
+			function redir2(){
+				window.location = "searchquiz.php";
 			}
-		}
-		function formActivator() {
-			var counterUp = 0;
-				if (document.getElementById('username').value.length == 0){
-					counterUp = counterUp + 1;
-				}
-				if (document.getElementById('password').value.length == 0){
-					counterUp = counterUp + 1;
-				}
-				if (counterUp > 0){
-					document.getElementById('login').disabled = true;
+			function conditionaldirect(numb){
+				if (document.getElementById(numb).value == 1){
+					document.getElementById('myform').action= 'results.php';
 				}
 				else {
-					document.getElementById('login').disabled = false;
+					document.getElementById('myform').action= 'results2.php';
 				}
-		}
-		function runAll(){
-			validatefield('username','usernamelabel');
-			validatefield('password','passwordlabel');
-			formActivator();
-		}
-	</script>
+			}
+		</script>
     </head>
-    <body id="page-top">
+	<?
+		session_name('Usersession');
+		session_start();
+		if (!isset($_SESSION["MEMBER_NUMBER"])) {
+			session_destroy ( );
+			echo "<body id='page-top' onload='redir();'>";
+		}
+		elseif (!$_SERVER["REQUEST_METHOD"] == "POST") {
+			echo "<body id='page-top' onload='redir2();'>";
+		}
+		else {
+			$membernumber = $_SESSION["MEMBER_NUMBER"];
+			$username = $_SESSION["MEMBER_ID"];
+			$firstname = $_SESSION["FIRST_NAME"];
+			$lastname = $_SESSION["LAST_NAME"];
+			$email = $_SESSION["EMAIL_ADDRESS"];
+			$quiznumber = $_POST["currentquiz"];
+			$_SESSION["QUIZ_NUMBER"] = $_POST["currentquiz"];
+			
+			$teamURL = dirname($_SERVER['PHP_SELF']) . DIRECTORY_SEPARATOR;
+			$server_root = dirname($_SERVER['PHP_SELF']);
+			$dbhost = 'localhost';  // Most likely will not need to be changed
+			$dbname = 'cen4010_s21_g02';   // Needs to be changed to your designated table database name
+			$dbuser = 'cen4010_s21_g02';   // Needs to be changed to reflect your LAMP server credentials
+			$dbpass = 'Group02sec!'; // Needs to be changed to reflect your LAMP server credentials
+			
+			$db2 = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+			if($db2->connect_errno > 0) {
+				die('Unable to connect to database [' . $db2->connect_error . ']');
+			}
+			$sqlcode2 = "SELECT * FROM DEV_QUIZ_HEADER WHERE QUIZ_NUMBER = '$quiznumber';";
+			$result2 = $db2->query($sqlcode2);
+			$row2 = $result2->fetch_assoc();
+			$db2->close();
+			$quizname = $row2["QUIZ_NAME"];
+			$totalquestions = $row2["TOTAL_ACTIVE_QUESTIONS"];
+			
+			$db = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+			if($db->connect_errno > 0) {
+				die('Unable to connect to database [' . $db->connect_error . ']');
+			}
+			$sqlcode = "SELECT * FROM DEV_QUIZ_QUESTION WHERE QUIZ_NUMBER = '$quiznumber'";
+			$result = $db->query($sqlcode);
+			$db->close();
+			echo "<body id='page-top'>";
+		}
+		
+	?>
         <!-- Navigation-->
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
             <div class="container">
@@ -73,49 +99,91 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ml-auto">
-                        <li class="nav-item"><a href="https://lamp.cse.fau.edu/~cen4010_s21_g02/projectdemo/">Home</a></li>
-                        <li class="nav-item"><a href="login.php">Sign in</a></li>
-                        <li class="nav-item"><a href="signup.php">Sign up</a></li>
+                        <li class="nav-item"><a href="home.php">Home</a></li>
+						<li class="nav-item"><a href="quizhome.php">Quiz Home</a></li>
+                        <!--<li class="nav-item"><a href="">Messages</a></li>
+                        <li class="nav-item"><a href="">Friends</a></li>-->
+						<li class="nav-item"><a href="profileedit.php">Edit Profile</a></li>
+                        <li class="nav-item"><a href="logout.php">LogOut</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
         <!-- Masthead-->
-        <header class="masthead">
+        <!--<header class="masthead">
             <div class="container">
                 <div class="masthead-subheading">Welcome To Apollo Melodies!</div>
-                <div class="masthead-heading text-uppercase">Please log in below.</div>
+                <div class="masthead-heading text-uppercase">Ready to Test your Knowledge in Music?</div>
+                <a class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" href="signup.php">Sign Up</a>
+                <a class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" href="login.php">Log In</a>
             </div>
-        </header>
+        </header>-->
         <!-- Services-->
         <section class="page-section" id="services">
             <div class="container">
                 <div class="text-center">
-                    <h2 class="section-heading text-uppercase">Log In</h2>
-                </div>
-				<div class="text-center" align="center">
+                    <h2 class="section-heading text-uppercase"><br><br><?echo $quizname;?><br><?echo "Total questions: ".$totalquestions;?><br>Good Luck!</h2>
+                    <h3 class="section-subheading text-muted"></h3>
 					<center>
-						<div style="max-width:500px;">
-							<form action="logval.php" class="section-heading text-uppercase" style="font-weight:bold;" method="post">
-								<div style="text-align:left;">
-									<label for="username" id="usernamelabel">Username:</label><br>
-									<input type="text" id="username" name="username" size="80" style="width: 100%;" onblur="validatefield('username','usernamelabel');"></input>
-								</div>
-								<div style="text-align:left;">
-									<label for="password"  id="passwordlabel">Password:</label><br>
-									<input type="password" id="password" name="password" size="120" style="width: 100%;" onblur="validatefield('password','passwordlabel');"></input>
-								</div>
-								<div style="color:red;">
-									The username or password you entered does not match our records. Please try again.
-								</div>
-								<div>
-									<br>
-									<input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="login" onmouseover="runAll();" onclick="runAll();" value="Log In" name="login"></input>
-								</div>
-							</form>
-						</div>
+						<br>
+						<br>
+						<form action="results.php" method="post" id="myform">
+						<input type="text" id="currentquiz"  name="currentquiz" hidden></input><br>
+
+							<?
+								$counter = 1;
+								while ($row = $result->fetch_assoc()){
+									$questionnumber = $row["QUESTION_NUMBER"];
+									echo "<table border ='1' style='max-width:1500px;min-width:900px;'>";
+									echo "<tr>";
+									echo "<td align='center' bgcolor='#a48ab8' style='color:#ffffff;'>Question: ".$counter."</td>";
+									echo "</tr>";
+									echo "<tr>";
+									echo "<td align='center' bgcolor='#d3c6dc'>".$row["TRIVIA_QUESTION"]."</td>";
+									echo "</tr>";
+									echo "<tr>";
+									echo "<td align='center' bgcolor='#d3c6dc'>".$row["TRIVIA_QUESTION_CREDIT"]."</td>";
+									echo "</tr>";
+									echo "<tr>";
+								    echo "<td align='center' bgcolor='#d3c6dc'><a class='btn btn-primary btn-xl text-uppercase js-scroll-trigger' href='".$row["MUSIC_SOURCE_URL"]."' target='_blank'>Click to hear the song</a></td>";
+									echo "</tr>";
+									echo "<tr>";
+									echo "<td align='left' bgcolor='#d3c6dc'>Answer 1: ".$row["ANSWER_1"]."</td>";
+									echo "</tr>";
+									echo "<tr>";
+									echo "<td align='left' bgcolor='#d3c6dc'>Answer 2: ".$row["ANSWER_2"]."</td>";
+									echo "</tr>";
+									echo "<tr>";
+									echo "<td align='left' bgcolor='#d3c6dc'>Answer 3: ".$row["ANSWER_3"]."</td>";
+									echo "</tr>";
+									echo "<tr>";
+									echo "<td align='left' bgcolor='#d3c6dc'>Answer 4: ".$row["ANSWER_4"]."</td>";
+									echo "</tr>";
+									echo "<tr>";
+									echo "<td align='center' bgcolor='#d3c6dc'>Choose your answer: <select name='$questionnumber' id='$questionnumber'>";
+									echo "<option value='0' select='selected'></option>";									
+									echo "<option value='1'>1</option>";
+									echo "<option value='2'>2</option>";
+									echo "<option value='3'>3</option>";
+									echo "<option value='4'>4</option>";
+									echo "</td>";
+									echo "</tr>";
+									echo "</table>";
+									echo "<br><br>";
+									//echo '<td style="text-align:center;">'.$row["QUIZ_NAME"].'</td>';
+									//echo '<td style="text-align:center;">'.$row["QUIZ_GENRE"].'</td>';
+									//echo '<td style="text-align:center;">'.$percentage.'%</td>';
+									//echo '<td style="text-align:center;">'.$createdate->format("m/d/Y").'</td>';
+									//echo '<td style="text-align:center;">'.$editdate->format("m/d/Y").'</td>';
+									//echo '<td style="text-align:center;">'.$row["TOTAL_ACTIVE_QUESTIONS"].'</td>';
+									//echo '<td style="text-align:center;" ><input type="submit" class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" id="takequiz" value="Take Quiz" name="takequiz"></td>';
+									$counter = $counter + 1;
+								}
+							?>
+						<input type='submit' class='btn btn-primary btn-xl text-uppercase js-scroll-trigger' id='submitquiz' onclick="conditionaldirect('sal')"; value='Submit Quiz' name='submitquiz'>
+						</form>
 					</center>
-				</div>				
+                </div>
             </div>
         </section>
         <!-- Portfolio Grid-->
